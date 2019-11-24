@@ -12,10 +12,7 @@ import (
 
 const (
 	userAgent = "Mozilla/5.0 (compatible; meg/0.2; +https://github.com/tomnomnom/meg)"
-
-	// argument defaults
-	defaultPathsFile = "./paths"
-	defaultHostsFile = "./hosts"
+	defaultUrlsFile = "./urls"
 	defaultOutputDir = "./out"
 )
 
@@ -27,17 +24,10 @@ func main() {
 	// get the config struct
 	c := processArgs()
 
-	// read the paths file
-	paths, err := readLinesOrLiteral(c.paths, defaultPathsFile)
+	// read the urls file
+	targetUrls, err := readLinesOrLiteral(c.targetUrls, defaultUrlsFile)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed to open paths file: %s\n", err)
-		os.Exit(1)
-	}
-
-	// read the hosts file
-	hosts, err := readLinesOrLiteral(c.hosts, defaultHostsFile)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed to open hosts file: %s\n", err)
+		fmt.Fprintf(os.Stderr, "failed to open urls file: %s\n", err)
 		os.Exit(1)
 	}
 
@@ -108,33 +98,28 @@ func main() {
 	}()
 
 	// send requests for each path for every host
-	for _, path := range paths {
-		for _, host := range hosts {
+	for _, targetUrl := range targetUrls {
 
-			// the host portion may contain a path prefix,
-			// so we should strip that off and add it to
-			// the beginning of the path.
-			u, err := url.Parse(host)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "failed to parse host: %s\n", err)
-				continue
-			}
-			prefixedPath := u.Path + path
-			u.Path = ""
+	         // the host portion may contain a path prefix,
+		// so we should strip that off and add it to
+		// the beginning of the path.
+		u, err := url.Parse(targetUrl)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "failed to parse host: %s\n", err)
+			continue
+		}
+		prefixedPath := u.Path
+		u.Path = ""
+		host := u.String()
 
-			// stripping off a path means we need to
-			// rebuild the host portion too
-			host = u.String()
-
-			requests <- request{
-				method:         c.method,
-				host:           host,
-				path:           prefixedPath,
-				headers:        c.headers,
-				followLocation: c.followLocation,
-				body:           c.body,
-				timeout:        time.Duration(c.timeout * 1000000),
-			}
+		requests <- request{
+			method:         c.method,
+			host:           host,
+			path:           prefixedPath,
+			headers:        c.headers,
+			followLocation: c.followLocation,
+			body:           c.body,
+			timeout:        time.Duration(c.timeout * 1000000),
 		}
 	}
 

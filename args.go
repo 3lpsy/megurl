@@ -51,8 +51,7 @@ type config struct {
 	timeout        int
 	verbose        bool
 
-	paths     string
-	hosts     string
+	targetUrls     string
 	output    string
 	noHeaders bool
 
@@ -118,19 +117,13 @@ func processArgs() config {
 	flag.Parse()
 
 	// paths might be in a file, or it might be a single value
-	paths := flag.Arg(0)
-	if paths == "" {
-		paths = defaultPathsFile
-	}
-
-	// hosts are always in a file
-	hosts := flag.Arg(1)
-	if hosts == "" {
-		hosts = defaultHostsFile
+	targetUrls := flag.Arg(0)
+	if targetUrls == "" {
+		targetUrls = defaultUrlsFile
 	}
 
 	// default the output directory to ./out
-	output := flag.Arg(2)
+	output := flag.Arg(1)
 	if output == "" {
 		output = defaultOutputDir
 	}
@@ -152,8 +145,7 @@ func processArgs() config {
 		timeout:        timeout,
 		requester:      requesterFn,
 		verbose:        verbose,
-		paths:          paths,
-		hosts:          hosts,
+		targetUrls:     targetUrls,
 		output:         output,
 		noHeaders:      noHeaders,
 	}
@@ -164,7 +156,7 @@ func init() {
 		h := "Request many paths for many hosts\n\n"
 
 		h += "Usage:\n"
-		h += "  meg [path|pathsFile] [hostsFile] [outputDir]\n\n"
+		h += "  meg [urlsFile] [outputDir]\n\n"
 
 		h += "Options:\n"
 		h += "  -b, --body <val>           Set the request body\n"
@@ -179,23 +171,15 @@ func init() {
 		h += "  -X, --method <method>      HTTP method (default: GET)\n\n"
 
 		h += "Defaults:\n"
-		h += "  pathsFile: ./paths\n"
-		h += "  hostsFile: ./hosts\n"
+		h += "  urlsFile: ./urls\n"
 		h += "  outputDir:  ./out\n\n"
 
-		h += "Paths file format:\n"
-		h += "  /robots.txt\n"
-		h += "  /package.json\n"
-		h += "  /security.txt\n\n"
-
-		h += "Hosts file format:\n"
-		h += "  http://example.com\n"
-		h += "  https://example.edu\n"
-		h += "  https://example.net\n\n"
+		h += "URLS file format:\n"
+		h += "  http://acme.wut/robots.txt\n"
 
 		h += "Examples:\n"
 		h += "  meg /robots.txt\n"
-		h += "  meg paths.txt hosts.txt output\n"
+		h += "  meg urls.txt output\n"
 
 		fmt.Fprintf(os.Stderr, h)
 	}
