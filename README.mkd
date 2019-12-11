@@ -6,6 +6,11 @@ Useless fork of meg for just ingesting a url list instead of a hosts + paths lis
 See the original repo for more details: [meg](https://github.com/tomnomnom/meg)
 
 ```
+$ go get -u github.com/tomnomnom/meg
+$ go build main.go
+```
+
+```
 Request many paths for many hosts
 
 Usage:
