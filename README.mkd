@@ -7,7 +7,7 @@ See the original repo for more details: [meg](https://github.com/tomnomnom/meg)
 
 ```
 $ go get -u github.com/tomnomnom/meg
-$ go build main.go
+$ go build .
 ```
 
 ```
